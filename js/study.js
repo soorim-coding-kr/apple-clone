@@ -1,5 +1,7 @@
 (() => {
 	let yOffset = 0; // = window.pageYOffset
+	let prevScrollHeight = 0; //현재 스크롤 위치(=yOffset)보다 이전에 위치한 스크롤 섹션들의 스크롤 높이값의 합
+	let currentScene = 0; // 현재 활성화된(눈앞에 보이는) 스크롤 섹션
 
 	const sceneInfo = [
 		{
@@ -50,14 +52,48 @@
 			].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
 		}
 		console.log(sceneInfo);
+		// setLayout에서 currentScene 세팅 (브라우저 새로고침 시에도 currentScene 맞추기 위함)
+		yOffset = window.pageYOffset;
+		let totalScrollHeight = 0;
+		for (let i = 0; i < sceneInfo.length; i++) {
+			// 각 씬의 스크롤높이값을 계속 더해줌
+			totalScrollHeight += sceneInfo[i].scrollHeight;
+			// 전체 스크롤 높이가 현재 스크롤 높이보다 작으면
+			if (totalScrollHeight >= yOffset) {
+				// 현재 씬을 currentScene으로 세팅하고 for문 멈춤
+				currentScene = i;
+				break;
+			}
+		}
+		document.body.setAttribute('id', `show-scene-${currentScene}`);
 	}
 
-	function scrollLoop() {}
+	// 몇번째 스크롤 섹션에서 애니메이션을 활성화 시킬지
+	function scrollLoop() {
+		prevScrollHeight = 0;
+		for (let i = 0; i < currentScene; i++) {
+			// prevScrollHeight = prevScrollHeight + sceneInfo[i].scrollHeight;
+			// prevScrollHeight += sceneInfo[i].scrollHeight;
+			prevScrollHeight += sceneInfo[i].scrollHeight;
+		}
+		if (yOffset > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
+			currentScene++;
+			document.body.setAttribute('id', `show-scene-${currentScene}`);
+		}
+		if (yOffset < prevScrollHeight) {
+			if (currentScene === 0) return; // 브라우저 바운스 효과로 마이너스가 되는 것을 방지
+			currentScene--;
+			document.body.setAttribute('id', `show-scene-${currentScene}`);
+		}
+		console.log(prevScrollHeight);
+		console.log(currentScene);
+	}
 
-	window.addEventListener('resize', setLayout);
 	window.addEventListener('scroll', () => {
 		yOffset = window.pageYOffset;
 		scrollLoop();
 	});
-	setLayout();
+	// window.addEventListener('DOMContentLoaded', setLayout);
+	window.addEventListener('load', setLayout);
+	window.addEventListener('resize', setLayout);
 })();

@@ -20,11 +20,19 @@ a {
 .global-nav {
 	height: 44px;
 	padding: 0 1rem;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
 }
 .local-nav {
 	height: 52px;
 	padding: 0 1rem;
 	border-bottom: 1px solid #ddd;
+	position: absolute;
+	top: 45px;
+	left: 0;
+	width: 100%;
 }
 .global-nav-links,
 .local-nav-links {
