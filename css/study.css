@@ -68,7 +68,10 @@ a {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	margin: 5px 0;
+	height: 3em;
 	font-size: 2.5rem;
+	opacity: 0;
 	/*
         현재 엘리먼트 폰트사이즈 기준으로 height를 조절
         = 2.5rem 의 3배
