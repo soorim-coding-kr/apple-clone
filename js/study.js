@@ -19,8 +19,10 @@
 				messageD: document.querySelector('#scroll-section-0 .main-message.d'),
 			},
 			values: {
-				messageA_opacity: [0, 1],
-				messegaA_translateY: [-20, 0],
+				// start, end = 애니메이션이 재생되는 구간 설정 (비율기준)
+				messageA_opacity: [0, 1, { start: 0.1, end: 0.2 }],
+				messageB_opacity: [0, 1, { start: 0.3, end: 0.4 }],
+				// messegaA_translateY: [-20, 0],
 			},
 		},
 		{
@@ -80,8 +82,34 @@
 	function calcValues(values, currentYOffset) {
 		let rv;
 		//현재 섹션을 기준으로 현재 스크롤 위치값에 따른 비율
-		let scrollRatio = currentYOffset / sceneInfo[currentScene].scrollHeight;
-		rv = scrollRatio * (values[1] - values[0]) + values[0];
+		const scrollHeight = sceneInfo[currentScene].scrollHeight;
+		const scrollRatio = currentYOffset / sceneInfo[currentScene].scrollHeight;
+
+		if (values.length === 3) {
+			// start ~ end 사이에 애니메이션 실행
+			const partScrollStart = values[2].start * scrollHeight;
+			const partScrollEnd = values[2].end * scrollHeight;
+			const partScrollHeight = partScrollEnd - partScrollStart;
+			if (
+				currentYOffset >= partScrollStart &&
+				currentYOffset >= partScrollEnd
+			) {
+				// currentYOffset 의 스크롤값이 partScroll 범위 내에  들어와 있으면
+				rv =
+					((currentYOffset - partScrollStart) / partScrollHeight) *
+						(values[1] - values[0]) +
+					values[0];
+			} else if (currentYOffset < partScrollStart) {
+				// currentYOffset의 스크롤 값이 start구간에 못미치면 rv=초기값
+				rv = values[0];
+			} else if (currentYOffset > partScrollEnd) {
+				// currentYOffset의 스크롤 값이 end 구간 이후로 범위보다 스크롤값이 더 크면  rv=최종값
+				rv = values[1];
+			}
+		} else {
+			rv = scrollRatio * (values[1] - values[0]) + values[0];
+		}
+
 		return rv;
 	}
 
