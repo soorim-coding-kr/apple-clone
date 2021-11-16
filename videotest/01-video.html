@@ -1,50 +1,56 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-		}
-		body {
-			height: 500vh;
-		}
-		body.before-load {
-			overflow-y: hidden;
-		}
-		.sample-video {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-		}
-	</style>
-</head>
-<body class="before-load">
-	<video class="sample-video" src="../video/sample-low.mp4" muted></video>
-	<!-- <video class="sample-video" src="../video/sample-high.mp4" muted></video> -->
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			body {
+				height: 500vh;
+			}
+			body.before-load {
+				overflow-y: hidden;
+			}
+			.sample-video {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body class="before-load">
+		<video class="sample-video" src="../video/sample-low.mp4" muted></video>
+		<!-- 화면상에서는 깨짐 없이 깔끔하게 표현되지만, 버벅임이 심하게 나타남 -->
+		<!-- 스크롤을 이용한 비디오 컨트롤 시 저화질로 해야한다. 그래서 다른방법 사용. -->
+		<!-- <video class="sample-video" src="../video/sample-high.mp4" muted></video> -->
 
-	<script>
-		const videoElem = document.querySelector('.sample-video');
-		let progress;
-		let currentFrame;
-		function init() {
-			document.body.classList.remove('before-load');
+		<script>
+			const videoElem = document.querySelector('.sample-video');
+			let progress;
+			let currentFrame;
+			function init() {
+				document.body.classList.remove('before-load');
 
-			window.addEventListener('scroll', function () {
-				progress = pageYOffset / (document.body.offsetHeight - window.innerHeight);
-				console.log(progress);
-				if (progress < 0) progress = 0;
-				if (progress > 1) progress = 1;
+				window.addEventListener('scroll', function () {
+					// progress현재 스크롤 된 비율 (현재 스크롤 양/전체 스크롤 가동범위)
+					progress =
+						pageYOffset / (document.body.offsetHeight - window.innerHeight);
+					console.log(progress);
+					// 브라우저 바운스 효과 방지
+					if (progress < 0) progress = 0;
+					if (progress > 1) progress = 1;
 
-				videoElem.currentTime = videoElem.duration * progress;
-			});
-		}
+					videoElem.currentTime = videoElem.duration * progress;
+					// duration은 비디오의 전체 재생 시간을 나타내는 속성
+				});
+			}
 
-		window.addEventListener('load', init);
-	</script>
-</body>
+			window.addEventListener('load', init);
+		</script>
+	</body>
 </html>

@@ -276,6 +276,7 @@
 						values.messageA_opacity_in,
 						currentYOffset
 					);
+					// translate3d 처럼 3d가 붙은 속성들은 하드웨어 가속이 보장되어 더 나은 퍼포먼스. 실제 apple에서도 z축이 변함없는 효과여도 3d를 사용하여 작성.
 					objs.messageA.style.transform = `translate3d(0, ${calcValues(
 						values.messageA_translateY_in,
 						currentYOffset

@@ -1,63 +1,70 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-		}
-		body {
-			height: 500vh;
-		}
-		body.before-load {
-			overflow-y: hidden;
-		}
-		.sample-img {
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-		}
-	</style>
-</head>
-<body class="before-load">
-	<img class="sample-img" src="../video/002/IMG_7027.JPG">
-
-	<script>
-		const imgElem = document.querySelector('.sample-img');
-		const videoImages = [];
-		let totalImagesCount = 960;
-		let progress;
-		let currentFrame;
-
-		function setImages() {
-			for (let i = 0; i < totalImagesCount; i++) {
-				let imgElem = new Image();
-				imgElem.src = `../video/002/IMG_${7027 + i}.JPG`;
-				videoImages.push(imgElem);
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
 			}
-		}
+			body {
+				height: 500vh;
+			}
+			body.before-load {
+				overflow-y: hidden;
+			}
+			.sample-img {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+			}
+		</style>
+	</head>
+	<body class="before-load">
+		<!-- 비디오 프레임을 한장한장의 이미지로 추출하여 사용. 여기선 ipad의 animation pro를 사용하여 추출 후 이미지 압축툴로 압축.-->
+		<img class="sample-img" src="../video/002/IMG_7027.JPG" />
 
-		function init() {
-			document.body.classList.remove('before-load');
+		<script>
+			const imgElem = document.querySelector('.sample-img');
+			const videoImages = [];
+			let totalImagesCount = 960;
+			let progress;
+			let currentFrame;
 
-			window.addEventListener('scroll', function () {
-				progress = pageYOffset / (document.body.offsetHeight - window.innerHeight);
-				if (progress < 0) progress = 0;
-				if (progress > 1) progress = 1;
+			function setImages() {
+				for (let i = 0; i < totalImagesCount; i++) {
+					let imgElem = new Image();
+					imgElem.src = `../video/002/IMG_${7027 + i}.JPG`;
+					// 이미지를 생성 할 때마다 배열에 추가
+					videoImages.push(imgElem);
+				}
+			}
 
-				requestAnimationFrame(function () {
-					currentFrame = Math.round((totalImagesCount - 1) * progress);
-					imgElem.src = videoImages[currentFrame].src;
+			function init() {
+				document.body.classList.remove('before-load');
+
+				window.addEventListener('scroll', function () {
+					progress =
+						pageYOffset / (document.body.offsetHeight - window.innerHeight);
+					if (progress < 0) progress = 0;
+					if (progress > 1) progress = 1;
+
+					requestAnimationFrame(function () {
+						// 전체가 960장이기때문에 index는 0부터 959까지 =(totalImagesCount - 1)
+						// progress를 그대로 사용하면 소숫점의 숫자가 나타나 정수표현이 안되기 때문에 Math.round로 정수처리.
+						//  = 0~959까지 스크롤 된 비율.
+						currentFrame = Math.round((totalImagesCount - 1) * progress);
+						// currentFrame이라는 변수에 결과값을 담아 videoImages배열의 인덱스 번호로 사용하여 그 src속성에 접근하여 실제 imgElem(.sample-img) 의 src로 적용
+						imgElem.src = videoImages[currentFrame].src;
+					});
 				});
-			});
-		}
+			}
 
-		window.addEventListener('load', init);
-		setImages();
-	</script>
-</body>
+			window.addEventListener('load', init);
+			setImages();
+		</script>
+	</body>
 </html>
