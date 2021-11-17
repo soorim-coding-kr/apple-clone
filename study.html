@@ -34,6 +34,11 @@
 			</nav>
 			<section class="scroll-section" id="scroll-section-0">
 				<h1>AirMug Pro</h1>
+				<div class="sticky-elem sticky-elem-canvas">
+					<!-- width,height는 고정. 캔버스가 가진 픽셀 수를 유지한 채 scale을 조절하는것이 성능에 더 좋다 -->
+					<!-- setLayout()에서 세팅 -->
+					<canvas id="video-canvas-0" width="1920" height="1080"></canvas>
+				</div>
 				<div class="sticky-elem main-message a">
 					<p>
 						온전히 빠져들게 하는<br />
