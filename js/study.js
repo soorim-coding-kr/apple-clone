@@ -25,6 +25,13 @@
 				videoImages: [],
 			},
 			values: {
+				// 캔버스에서 변경되어야 할 이미지 시퀀스 설정 (이미지 순서). 이미지 갯수에 따라 설정
+				// 이미지 갯수 설정
+				videoImageCount: 300,
+				// 이미지 순서의 초기값, 최종값 설정
+				ImageSequence: [0, 299],
+				// 캔버스 스크롤 끝날 때 쯤 fade out 효과
+				canvas_opacity: [1, 0, { start: 0.95, end: 1 }],
 				// start, end = 애니메이션이 재생되는 구간 설정 (비율기준)
 				messageA_opacity_in: [0, 1, { start: 0.1, end: 0.2 }],
 				messageA_opacity_out: [1, 0, { start: 0.25, end: 0.3 }],
@@ -43,14 +50,6 @@
 				messageD_translateY_in: [20, 0, { start: 0.7, end: 0.8 }],
 				messageD_translateY_out: [0, -20, { start: 0.85, end: 0.9 }],
 				// messegaA_translateY: [-20, 0],
-				//////////////////////////////////////////////캔버스
-				// 캔버스에서 변경되어야 할 이미지 시퀀스 설정 (이미지 순서). 이미지 갯수에 따라 설정
-				// 이미지 갯수 설정
-				videoImageCount: 300,
-				// 이미지 순서의 초기값, 최종값 설정
-				ImageSequence: [0, 299],
-				// 캔버스 스크롤 끝날 때 쯤 fade out 효과
-				canvas_opacity: [1, 0, { start: 0.9, end: 1 }],
 			},
 		},
 		{
@@ -74,8 +73,15 @@
 				messageC: document.querySelector('#scroll-section-2 .c'),
 				pinB: document.querySelector('#scroll-section-2 .b .pin'),
 				pinC: document.querySelector('#scroll-section-2 .c .pin'),
+				canvas: document.querySelector('#video-canvas-1'),
+				context: document.querySelector('#video-canvas-1').getContext('2d'),
+				videoImages: [],
 			},
 			values: {
+				videoImageCount: 960,
+				ImageSequence: [0, 959],
+				canvas_opacity_in: [0, 1, { start: 0, end: 0.1 }],
+				canvas_opacity_out: [1, 0, { start: 0.95, end: 1 }],
 				messageA_opacity_in: [0, 1, { start: 0.15, end: 0.2 }],
 				messageA_opacity_out: [1, 0, { start: 0.3, end: 0.35 }],
 				messageB_opacity_in: [0, 1, { start: 0.5, end: 0.55 }],
@@ -119,7 +125,14 @@
 			// 위의 src를 가진 imgElem 객체 생성 후 videoImages배열에 추가
 			sceneInfo[0].objs.videoImages.push(imgElem);
 		}
-		console.log(sceneInfo[0].objs.videoImages);
+		// console.log(sceneInfo[0].objs.videoImages);
+		for (let i = 0; i < sceneInfo[2].values.videoImageCount; i++) {
+			imgElem = new Image();
+			//  = imgElem = document.createElement('img')
+			imgElem.src = `./video/002/IMG_${7027 + i}.JPG`;
+			// 위의 src를 가진 imgElem 객체 생성 후 videoImages배열에 추가
+			sceneInfo[2].objs.videoImages.push(imgElem);
+		}
 	}
 	setCanvasImages();
 
@@ -155,6 +168,7 @@
 		// 캔버스 대비 윈도우 창의 비율.
 		const heightRatio = window.innerHeight / 1080;
 		sceneInfo[0].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
+		sceneInfo[2].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
 	}
 	// 변화의 시작,끝값 = sceneInfo 의 values
 	function calcValues(values, currentYOffset) {
@@ -204,6 +218,22 @@
 		// console.log(currentScene);
 		switch (currentScene) {
 			case 0:
+				///////// 캔버스 드로잉
+				// 섹션이 시작할 때 부터 끝날 때 까지 쭉 재생되게.
+				let sequence = Math.round(
+					calcValues(values.ImageSequence, currentYOffset)
+				);
+				// console.log(sequence);
+				//  setCanvasImages()에서 objs.videoImages[]에 넣어준 이미지 적용 후 스크롤
+				// setCanvasImages()에서 설정해 준 videoImages 객체 적용 sequence번째 이미지 드로우
+				objs.context.drawImage(objs.videoImages[sequence], 0, 0);
+				// (videoImages[그릴 이미지 객체], x좌표, y좌표, width, height); width, height는 생략
+
+				// 마지막 canvas fade out효과
+				objs.canvas.style.opacity = calcValues(
+					values.canvas_opacity,
+					currentYOffset
+				);
 				// console.log('0 play;');
 				/////////////////// 텍스트 효과
 				if (scrollRatio <= 0.22) {
@@ -297,23 +327,6 @@
 					objs.messageD.style.transform = `translateY(${messageD_translateY_out}%)`;
 				}
 
-				///////// 캔버스 드로잉
-				// 섹션이 시작할 때 부터 끝날 때 까지 쭉 재생되게.
-				let sequence = Math.round(
-					calcValues(values.ImageSequence, currentYOffset)
-				);
-				console.log(sequence);
-				//  setCanvasImages()에서 objs.videoImages[]에 넣어준 이미지 적용 후 스크롤
-				// setCanvasImages()에서 설정해 준 videoImages 객체 적용 sequence번째 이미지 드로우
-				objs.context.drawImage(objs.videoImages[sequence], 0, 0);
-				// (videoImages[그릴 이미지 객체], x좌표, y좌표, width, height); width, height는 생략
-
-				// 마지막 canvas fade out효과
-				objs.canvas.style.opacity = calcValues(
-					values.canvas_opacity,
-					currentYOffset
-				);
-
 				break;
 			case 1:
 				// console.log('1 play;');
@@ -321,6 +334,22 @@
 				break;
 			case 2:
 				// console.log('2 play;');
+				let sequence2 = Math.round(
+					calcValues(values.ImageSequence, currentYOffset)
+				);
+				objs.context.drawImage(objs.videoImages[sequence2], 0, 0);
+
+				if (scrollRatio <= 0.5) {
+					objs.canvas.style.opacity = calcValues(
+						values.canvas_opacity_in,
+						currentYOffset
+					);
+				} else {
+					objs.canvas.style.opacity = calcValues(
+						values.canvas_opacity_out,
+						currentYOffset
+					);
+				}
 				if (scrollRatio <= 0.32) {
 					// in
 					objs.messageA.style.opacity = calcValues(
