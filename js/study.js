@@ -110,8 +110,19 @@
 			objs: {
 				container: document.querySelector('#scroll-section-3'),
 				canvasCaption: document.querySelector('.canvas-caption'),
+				canvas: document.querySelector('.image-blend-canvas'),
+				context: document.querySelector('.image-blend-canvas').getContext('2d'),
+				imagesPath: [
+					'./images/blend-image-1.jpg',
+					'./images/blend-image-2.jpg',
+				],
+				images: [],
 			},
-			values: {},
+			values: {
+				rect1X: [0, 0, { start: 0, end: 0 }],
+				rect2X: [0, 0, { start: 0, end: 0 }],
+				rectStartY: 0,
+			},
 		},
 	];
 
@@ -126,13 +137,21 @@
 			sceneInfo[0].objs.videoImages.push(imgElem);
 		}
 		// console.log(sceneInfo[0].objs.videoImages);
+
+		let imgElem2;
 		for (let i = 0; i < sceneInfo[2].values.videoImageCount; i++) {
-			imgElem = new Image();
-			//  = imgElem = document.createElement('img')
-			imgElem.src = `./video/002/IMG_${7027 + i}.JPG`;
-			// 위의 src를 가진 imgElem 객체 생성 후 videoImages배열에 추가
-			sceneInfo[2].objs.videoImages.push(imgElem);
+			imgElem2 = new Image();
+			imgElem2.src = `./video/002/IMG_${7027 + i}.JPG`;
+			sceneInfo[2].objs.videoImages.push(imgElem2);
 		}
+
+		let imgElem3;
+		for (let i = 0; i < sceneInfo[3].objs.imagesPath.length; i++) {
+			imgElem3 = new Image();
+			imgElem3.src = sceneInfo[3].objs.imagesPath[i];
+			sceneInfo[3].objs.images.push(imgElem3);
+		}
+		// console.log(sceneInfo[3].objs.images);
 	}
 	setCanvasImages();
 
@@ -436,7 +455,82 @@
 				break;
 			case 3:
 				// console.log('3 play;');
+				// 가로/세로 전부 꽉 차게 하기 위한 세팅(계산)
+				const widthRatio = window.innerWidth / objs.canvas.width;
+				const heightRatio = window.innerHeight / objs.canvas.height;
+				// console.log(`w=${widthRatio} , h= ${heightRatio}`);
+				let canvasScaleRatio;
+				if (widthRatio <= heightRatio) {
+					// 캔버스보다 브라우저 창이 홀쭉한 경우
+					canvasScaleRatio = heightRatio;
+					// console.log('기준 : heightRatio');
+				} else {
+					// 캔버스보다 브라우저 창이 납작한 경우
+					canvasScaleRatio = widthRatio;
+					// console.log('기준 : widthRatio');
+				}
 
+				objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
+				objs.context.drawImage(objs.images[0], 0, 0);
+
+				//캔버스 사이즈에 맞춰 innerWidth, innerHeight 세팅
+				// const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+				// const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+				// 스크롤바 너비까지 포함되기 때문에 window.innerWidth -> body.offsetWidth
+				const recalculatedInnerWidth =
+					document.body.offsetWidth / canvasScaleRatio;
+				const recalculatedInnerHeight =
+					document.body.offsetWidth / canvasScaleRatio;
+
+				// 캔버스 위치,크기 가져오기
+				if (!values.rectStartY) {
+					values.rectStartY = objs.canvas.getBoundingClientRect().top;
+					console.log(values.rectStartY);
+					// values.rect1X[2].start = window.innerHeight / 2 / scrollHeight;
+					// values.rect2X[2].start = window.innerHeight / 2 / scrollHeight;
+					values.rect1X[2].end = values.rectStartY / scrollHeight;
+					values.rect2X[2].end = values.rectStartY / scrollHeight;
+				}
+
+				// canvas 흰색박스 크기
+				const whiteRectWidth = recalculatedInnerWidth * 0.15;
+				// canvas 흰색박스 (왼쪽박스, 오른쪽박스) 위치값 세팅
+				values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
+				values.rect1X[1] = values.rect1X[0] - whiteRectWidth;
+				values.rect2X[0] =
+					values.rect1X[0] + recalculatedInnerWidth - whiteRectWidth;
+				values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
+
+				// console.log('3 Start');
+
+				//.좌우 흰색 박스,
+				// objs.context.fillRect(
+				// 	values.rect1X[0],
+				// 	0,
+				// 	parseInt(whiteRectWidth),
+				// 	objs.canvas.height
+				// );
+				// // canvas에서는 정수처리가 되어야 성능이 좀 더 좋아지기 때문에 parseInt()로 정수처리
+				// objs.context.fillRect(
+				// 	values.rect2X[0],
+				// 	0,
+				// 	parseInt(whiteRectWidth),
+				// 	objs.canvas.height
+				// );
+				objs.context.fillRect(
+					parseInt(calcValues(values.rect1X, currentYOffset)),
+					0,
+					parseInt(whiteRectWidth),
+					objs.canvas.height
+				);
+				objs.context.fillRect(
+					parseInt(calcValues(values.rect2X, currentYOffset)),
+					0,
+					parseInt(whiteRectWidth),
+					objs.canvas.height
+				);
+
+				// console.log(`w=${recalculatedInnerWidth} h=${recalculatedInnerHeight}`);
 				break;
 		}
 	}
