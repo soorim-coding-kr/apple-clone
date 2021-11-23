@@ -121,6 +121,7 @@
 			values: {
 				rect1X: [0, 0, { start: 0, end: 0 }],
 				rect2X: [0, 0, { start: 0, end: 0 }],
+				imageBlendY: [0, 0, { start: 0, end: 0 }],
 				rectStartY: 0,
 			},
 		},
@@ -451,10 +452,54 @@
 						currentYOffset
 					)})`;
 				}
+				// currentScene에서 활성화되는 캔버스를 미리 그려준다.
+				if (scrollRatio > 0.9) {
+					const objs = sceneInfo[3].objs;
+					const values = sceneInfo[3].values;
+					const widthRatio = window.innerWidth / objs.canvas.width;
+					const heightRatio = window.innerHeight / objs.canvas.height;
+					let canvasScaleRatio;
+
+					if (widthRatio <= heightRatio) {
+						canvasScaleRatio = heightRatio;
+					} else {
+						canvasScaleRatio = widthRatio;
+					}
+
+					objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
+					objs.context.fillStyle = 'white';
+					objs.context.drawImage(objs.images[0], 0, 0);
+
+					const recalculatedInnerWidth =
+						document.body.offsetWidth / canvasScaleRatio;
+					const recalculatedInnerHeight =
+						document.body.offsetWidth / canvasScaleRatio;
+
+					const whiteRectWidth = recalculatedInnerWidth * 0.15;
+					values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
+					values.rect1X[1] = values.rect1X[0] - whiteRectWidth;
+					values.rect2X[0] =
+						values.rect1X[0] + recalculatedInnerWidth - whiteRectWidth;
+					values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
+
+					objs.context.fillRect(
+						parseInt(calcValues(values.rect1X[0])),
+						0,
+						parseInt(whiteRectWidth),
+						objs.canvas.height
+					);
+					objs.context.fillRect(
+						parseInt(calcValues(values.rect2X[0])),
+						0,
+						parseInt(whiteRectWidth),
+						objs.canvas.height
+					);
+				}
 
 				break;
 			case 3:
 				// console.log('3 play;');
+				let step = 0; //캔버스 이미지 블랜드 처리를 위한 스텝값(단계) 설정
 				// 가로/세로 전부 꽉 차게 하기 위한 세팅(계산)
 				const widthRatio = window.innerWidth / objs.canvas.width;
 				const heightRatio = window.innerHeight / objs.canvas.height;
@@ -471,6 +516,7 @@
 				}
 
 				objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
+				objs.context.fillStyle = 'white';
 				objs.context.drawImage(objs.images[0], 0, 0);
 
 				//캔버스 사이즈에 맞춰 innerWidth, innerHeight 세팅
@@ -484,10 +530,19 @@
 
 				// 캔버스 위치,크기 가져오기
 				if (!values.rectStartY) {
-					values.rectStartY = objs.canvas.getBoundingClientRect().top;
-					console.log(values.rectStartY);
+					// values.rectStartY = objs.canvas.getBoundingClientRect().top;
+					//offsetTop은 css position을 변경하여 기준점을 변경할 수 있다(기본=브라우저 전체 문서의 시작위치)
+					// 그러나 canvas의 크기가 transform:scale로 변형된 건 고려되지않아 이에 따른 계산이 추가로 필요하다. 그낭 offsetTop이 아니라, 캔버스가 늘어나거나 줄어드는 비율을 계산하여 적용.
+					values.rectStartY =
+						objs.canvas.offsetTop +
+						(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2;
+					//  기존 캔버스의 높이 - 크기가 변경된 캔버스의 높이(기존캔버스의 높이 * 변경된 스케일) / 2
+
+					// console.log(values.rectStartY);
 					// values.rect1X[2].start = window.innerHeight / 2 / scrollHeight;
 					// values.rect2X[2].start = window.innerHeight / 2 / scrollHeight;
+					values.rect1X[2].start = window.innerHeight / 2 / scrollHeight;
+					values.rect2X[2].start = window.innerHeight / 2 / scrollHeight;
 					values.rect1X[2].end = values.rectStartY / scrollHeight;
 					values.rect2X[2].end = values.rectStartY / scrollHeight;
 				}
@@ -531,6 +586,26 @@
 				);
 
 				// console.log(`w=${recalculatedInnerWidth} h=${recalculatedInnerHeight}`);
+
+				if (scrollRatio < values.rect1X[2].end) {
+					// 캔버스가 브라우저 상단에 닿지 않은 상태 = scrollRatio가 캔버스내부 박스 애니메이션이 끝나는 지점보다 작을 때
+					step = 1;
+					console.log(`캔버스 닿기 전${step}`);
+					objs.canvas.classList.remove('sticky');
+				} else {
+					// 캔버스가 브라우저 상단에 닿은 이후
+					step = 2;
+					// console.log(`캔버스 닿은 후${step}`);
+					//이미지 블랜드
+					// imageBlendY:[0, 0, { start: 0, end: 0 }],
+					// objs.context.drawImage(img, x, y, width, height);
+					objs.context.drawImage(objs.images[1], 0, 200);
+
+					objs.canvas.classList.add('sticky');
+					objs.canvas.style.top = `${
+						-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2
+					}px`;
+				}
 				break;
 		}
 	}

@@ -59,6 +59,8 @@ a {
 }
 
 .scroll-section {
+	/* script에서 offsetTop의 가준점을 position속성으로 변경할 수 있다*/
+	position: relative;
 	padding-top: 50vh;
 }
 
@@ -163,6 +165,10 @@ a {
 	/* top: 0; */
 	left: 0;
 	width: 100%;
+}
+.image-blend-canvas.sticky {
+	top: 0;
+	position: fixed;
 }
 
 #show-scene-0 #scroll-section-0 .sticky-elem,
