@@ -743,12 +743,6 @@
         if (enterNewScene) return;
         playAnimation();
     }
-
-    window.addEventListener("scroll", () => {
-        yOffset = window.pageYOffset;
-        scrollLoop();
-        checkMenu();
-    });
     // window.addEventListener('DOMContentLoaded', setLayout);
     window.addEventListener("load", () => {
         // 로딩이벤트
@@ -760,13 +754,25 @@
             0,
             0
         );
-    });
-    window.addEventListener("resize", setLayout);
-    //trasnsitionend = 트렌지션이 끝난 시점
-    document
-        .querySelector(".loading")
-        .addEventListener("transitionend", (e) => {
-            //화살표 함수 내부의 this는 전역객체이기 때문에 this는 사용 불가
-            document.body.removeChild(e.currentTarget);
+
+        window.addEventListener("scroll", () => {
+            yOffset = window.pageYOffset;
+            scrollLoop();
+            checkMenu();
         });
+        window.addEventListener("resize", () => {
+            if (window.innerWidth > 900) {
+                setLayout();
+            }
+            sceneInfo[3].values.rectStartY = 0;
+        });
+        window.addEventListener("orientationchange", setLayout);
+        //trasnsitionend = 트렌지션이 끝난 시점
+        document
+            .querySelector(".loading")
+            .addEventListener("transitionend", (e) => {
+                //화살표 함수 내부의 this는 전역객체이기 때문에 this는 사용 불가
+                document.body.removeChild(e.currentTarget);
+            });
+    });
 })();
