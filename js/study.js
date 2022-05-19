@@ -745,6 +745,8 @@
     }
     // window.addEventListener('DOMContentLoaded', setLayout);
     window.addEventListener("load", () => {
+        // debugger; // 개발자모드에서 코드 하나하나 실행하며 테스트 할 수 있게 보여줌
+
         // 로딩이벤트
         document.body.classList.remove("before-load");
         setLayout();
