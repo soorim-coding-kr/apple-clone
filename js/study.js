@@ -763,10 +763,12 @@
         window.addEventListener("resize", () => {
             if (window.innerWidth > 900) {
                 setLayout();
+                sceneInfo[3].values.rectStartY = 0;
             }
-            sceneInfo[3].values.rectStartY = 0;
         });
-        window.addEventListener("orientationchange", setLayout);
+        window.addEventListener("orientationchange", () => {
+            setTimeout(setLayout, 500);
+        });
         //trasnsitionend = 트렌지션이 끝난 시점
         document
             .querySelector(".loading")
