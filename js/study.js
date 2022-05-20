@@ -725,9 +725,17 @@
             // prevScrollHeight += sceneInfo[i].scrollHeight;
             prevScrollHeight += sceneInfo[i].scrollHeight;
         }
+        if (yOffset < prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
+            document.body.classList.remove("scroll-effect-end");
+        }
         if (yOffset > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
             enterNewScene = true; // 씬이 변경될 때 true로 변경
-            currentScene++;
+            if (currentScene === sceneInfo.length - 1) {
+                document.body.classList.add("scroll-effect-end");
+            }
+            if (currentScene < sceneInfo.length - 1) {
+                currentScene++;
+            }
             document.body.setAttribute("id", `show-scene-${currentScene}`);
         }
         if (yOffset < prevScrollHeight) {
@@ -757,6 +765,23 @@
             0
         );
 
+        // setTimeout(() => {
+        //     window.scrollTo(0, 400);
+        // }, 100);
+        let tempYOffset = yOffset;
+        let tempScrollCount = 0;
+
+        let siId = setInterval(() => {
+            if (tempYOffset > 15) {
+                window.scrollTo(0, tempYOffset);
+                tempYOffset += 2;
+                if (tempScrollCount > 15) {
+                    clearInterval(siId);
+                }
+                tempScrollCount++;
+            }
+        }, 20);
+
         window.addEventListener("scroll", () => {
             yOffset = window.pageYOffset;
             scrollLoop();
@@ -764,12 +789,14 @@
         });
         window.addEventListener("resize", () => {
             if (window.innerWidth > 900) {
-                setLayout();
-                sceneInfo[3].values.rectStartY = 0;
+                window.location.reload();
             }
         });
         window.addEventListener("orientationchange", () => {
-            setTimeout(setLayout, 500);
+            scrollTo(0, 0);
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         });
         //trasnsitionend = 트렌지션이 끝난 시점
         document

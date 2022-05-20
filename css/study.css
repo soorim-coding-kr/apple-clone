@@ -194,6 +194,9 @@ body.before-load {
     display: block;
     will-change: opacity, trasnform;
 }
+.scroll-effect-end .sticky-elem {
+    display: none !important;
+}
 .sticky-elem-canvas {
     top: 0;
     height: 100%;
@@ -238,6 +241,11 @@ body.before-load {
 .before-load .loading {
     opacity: 1;
 }
+
+.normal-content {
+    margin: 0 0 10rem;
+}
+
 @keyframes loading-circle-ani {
     0% {
         stroke-dashoffset: 157;
